@@ -1,0 +1,19 @@
+# OS/editor
+.DS_Store
+.vscode/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Node
+node_modules/
+
+# Local datasets and run artifacts
+inputs_every10/
+inputs_every8/
+outputs*/
+tmp_*/
+
+# Generated reports/data
+*.log

@@ -1,0 +1,79 @@
+Materials Parameters and Standard SI Units
+
+Basic Physical Properties
+
+Density (rho) — kg·m^-3 Specific volume (v) — m^(3·kg)-1 Molar mass (M)
+— kg·mol^-1 Atomic number (Z) — dimensionless Atomic radius — m Ionic
+radius — m Covalent radius — m Lattice parameter (a,b,c) — m Crystal
+angle (alpha,beta,gamma) — rad or degree Packing fraction —
+dimensionless
+
+Mechanical Properties
+
+Young’s modulus (E) — Pa Shear modulus (G) — Pa Bulk modulus (K) — Pa
+Poisson ratio (nu) — dimensionless Yield strength — Pa Ultimate tensile
+strength — Pa Compressive strength — Pa Shear strength — Pa Fracture
+toughness (K_IC) — MPa·sqrt(m) Hardness — Pa Fatigue strength — Pa
+Fatigue limit — Pa Stress — Pa Strain — dimensionless Strain rate — s^-1
+Elastic compliance — Pa^-1 Creep rate — s^-1 Creep modulus — Pa Impact
+toughness — J·m^-2 Elastic limit — Pa Flexural strength — Pa Flexural
+modulus — Pa Indentation modulus — Pa
+
+Thermal Properties
+
+Thermal conductivity (k) — W·m^(-1·K)-1 Thermal diffusivity (alpha) —
+m^(2·s)-1 Specific heat capacity (c_p) — J·kg^(-1·K)-1 Specific heat
+capacity (c_v) — J·kg^(-1·K)-1 Molar heat capacity — J·mol^(-1·K)-1
+Coefficient of thermal expansion — K^-1 Melting temperature — K Boiling
+temperature — K Glass transition temperature — K Debye temperature — K
+Latent heat of fusion — J·kg^-1 Latent heat of vaporization — J·kg^-1
+Thermal resistance — K·W^-1 Thermal boundary resistance — m^(2·K·W)-1
+Thermal emissivity — dimensionless Thermal absorptivity — dimensionless
+
+Electrical Properties
+
+Electrical conductivity — S·m^-1 Electrical resistivity — Ohm·m
+Permittivity — F·m^-1 Relative permittivity — dimensionless Dielectric
+strength — V·m^-1 Carrier mobility — m^(2·V)-1·s^-1 Carrier
+concentration — m^-3 Band gap energy — eV Hall coefficient — m^(3·C)-1
+Seebeck coefficient — V·K^-1 Thermoelectric power factor — W·m^(-1·K)-2
+Dielectric loss tangent — dimensionless
+
+Magnetic Properties
+
+Magnetic permeability — H·m^-1 Relative permeability — dimensionless
+Magnetic susceptibility — dimensionless Magnetization — A·m^-1 Magnetic
+field strength — A·m^-1 Magnetic flux density — T Curie temperature — K
+Coercivity — A·m^-1 Remanent magnetization — T Magnetocrystalline
+anisotropy — J·m^-3
+
+Optical Properties
+
+Refractive index — dimensionless Absorption coefficient — m^-1
+Reflectivity — dimensionless Transmittance — dimensionless Extinction
+coefficient — dimensionless Optical band gap — eV Luminescence lifetime
+— s Photoluminescence efficiency — dimensionless
+
+Transport Properties
+
+Diffusion coefficient — m^(2·s)-1 Mobility — m^(2·V)-1·s^-1 Dynamic
+viscosity — Pa·s Kinematic viscosity — m^(2·s)-1 Permeability — m^2
+Ionic conductivity — S·m^-1
+
+Surface and Interface Properties
+
+Surface energy — J·m^-2 Surface tension — N·m^-1 Work of adhesion —
+J·m^-2 Contact angle — rad or degree Interface energy — J·m^-2
+
+Chemical and Thermodynamic Properties
+
+Gibbs free energy — J Enthalpy — J Entropy — J·K^-1 Chemical potential —
+J·mol^-1 Activity — dimensionless Reaction rate constant — varies
+Equilibrium constant — dimensionless Heat of formation — J·mol^-1 Heat
+of reaction — J·mol^-1
+
+Microstructural Parameters
+
+Grain size — m Dislocation density — m^-2 Porosity — dimensionless
+Volume fraction — dimensionless Aspect ratio — dimensionless Particle
+size — m Phase fraction — dimensionless

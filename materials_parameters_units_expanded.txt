@@ -1,0 +1,92 @@
+SI Orders of Magnitude (Standard Prefixes)
+
+quetta (Q) — 10^30 ronna (R) — 10^27 yotta (Y) — 10^24 zetta (Z) — 10^21
+exa (E) — 10^18 peta (P) — 10^15 tera (T) — 10^12 giga (G) — 10^9 mega
+(M) — 10^6 kilo (k) — 10^3 hecto (h) — 10^2 deca (da) — 10^1 deci (d) —
+10^-1 centi (c) — 10^-2 milli (m) — 10^-3 micro (µ) — 10^-6 nano (n) —
+10^-9 pico (p) — 10^-12 femto (f) — 10^-15 atto (a) — 10^-18 zepto (z) —
+10^-21 yocto (y) — 10^-24 ronto (r) — 10^-27 quecto (q) — 10^-30
+
+Materials Parameters, Symbols, and SI Units
+
+Basic Physical Properties
+
+Density (ρ) — kg·m^-3 Specific volume (v) — m^(3·kg)-1 Molar mass (M) —
+kg·mol^-1 Atomic number (Z) — dimensionless Atomic radius (r_a) — m
+Ionic radius (r_i) — m Covalent radius (r_c) — m Lattice parameter
+(a,b,c) — m Crystal angles (α,β,γ) — rad or ° Packing fraction (PF) —
+dimensionless Number density (n) — m^-3 Mass fraction — dimensionless
+Mole fraction — dimensionless
+
+Mechanical Properties
+
+Young’s modulus (E) — Pa Shear modulus (G) — Pa Bulk modulus (K) — Pa
+Poisson ratio (ν) — dimensionless Yield strength (σ_y) — Pa Ultimate
+tensile strength (σ_u) — Pa Compressive strength (σ_c) — Pa Shear
+strength (τ) — Pa Fracture toughness (K_IC) — MPa·√m Hardness (H) — Pa
+Fatigue strength (σ_f) — Pa Fatigue limit (σ_e) — Pa Stress (σ) — Pa
+Strain (ε) — dimensionless Strain rate (ε̇) — s^-1 Elastic compliance (S)
+— Pa^-1 Creep rate (ε̇_c) — s^-1 Impact toughness — J·m^-2 Elastic limit
+— Pa Flexural strength — Pa Flexural modulus — Pa Indentation modulus —
+Pa
+
+Thermal Properties
+
+Thermal conductivity (k) — W·m^(-1·K)-1 Thermal diffusivity (α) —
+m^(2·s)-1 Specific heat capacity (c_p) — J·kg^(-1·K)-1 Specific heat
+capacity (c_v) — J·kg^(-1·K)-1 Molar heat capacity (C_p) —
+J·mol^(-1·K)-1 Coefficient of thermal expansion (α_T) — K^-1 Melting
+temperature (T_m) — K Boiling temperature (T_b) — K Glass transition
+temperature (T_g) — K Debye temperature (Θ_D) — K Latent heat of fusion
+(L_f) — J·kg^-1 Latent heat of vaporization (L_v) — J·kg^-1 Thermal
+resistance (R_th) — K·W^-1 Thermal boundary resistance — m^(2·K·W)-1
+Thermal emissivity — dimensionless Thermal absorptivity — dimensionless
+
+Electrical Properties
+
+Electrical conductivity (σ_e) — S·m^-1 Electrical resistivity (ρ_e) —
+Ω·m Permittivity (ε) — F·m^-1 Relative permittivity (ε_r) —
+dimensionless Dielectric strength — V·m^-1 Carrier mobility (μ) —
+m^(2·V)-1·s^-1 Carrier concentration (n) — m^-3 Band gap (E_g) — eV Hall
+coefficient (R_H) — m^(3·C)-1 Seebeck coefficient — V·K^-1
+Thermoelectric power factor — W·m^(-1·K)-2 Dielectric loss tangent —
+dimensionless
+
+Magnetic Properties
+
+Magnetic permeability (μ) — H·m^-1 Relative permeability (μ_r) —
+dimensionless Magnetic susceptibility (χ) — dimensionless Magnetization
+(M) — A·m^-1 Magnetic field strength (H) — A·m^-1 Magnetic flux density
+(B) — T Curie temperature (T_C) — K Coercivity (H_c) — A·m^-1 Remanence
+(B_r) — T Magnetocrystalline anisotropy — J·m^-3
+
+Optical Properties
+
+Refractive index — dimensionless Absorption coefficient — m^-1
+Reflectivity — dimensionless Transmittance — dimensionless Extinction
+coefficient — dimensionless Optical band gap — eV Luminescence lifetime
+— s
+
+Transport Properties
+
+Diffusion coefficient (D) — m^(2·s)-1 Mobility — m^(2·V)-1·s^-1 Dynamic
+viscosity (η) — Pa·s Kinematic viscosity — m^(2·s)-1 Permeability — m^2
+Ionic conductivity — S·m^-1
+
+Surface and Interface Properties
+
+Surface energy (γ) — J·m^-2 Surface tension (γ) — N·m^-1 Work of
+adhesion — J·m^-2 Contact angle — rad or ° Interface energy — J·m^-2
+
+Thermodynamic Properties
+
+Gibbs free energy (G) — J Enthalpy (H) — J Entropy (S) — J·K^-1 Chemical
+potential — J·mol^-1 Activity — dimensionless Reaction rate constant —
+varies Equilibrium constant — dimensionless Heat of formation — J·mol^-1
+Heat of reaction — J·mol^-1
+
+Microstructural Parameters
+
+Grain size (d) — m Dislocation density (ρ_d) — m^-2 Porosity (φ) —
+dimensionless Volume fraction (f_v) — dimensionless Aspect ratio —
+dimensionless Particle size — m Phase fraction — dimensionless

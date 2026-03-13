@@ -1,0 +1,271 @@
+parameter,unit,aliases
+absorbance,a.u.,optical density|od
+actinium,,
+aluminum,,
+americium,,
+angle,deg,theta|2theta|phi|misorientation angle
+annealing,,
+annealing temperature,celcius,
+annealing time,seconds,
+antimony,,
+argon,,
+arsenic,,
+astatine,,
+austenization,,
+austenization temperature,K,
+austenization time,seconds,
+barium,,
+bending,,
+berkelium,,
+beryllium,,
+bismuth,,
+bohrium,,
+boron,,
+bromine,,
+bulk modulus,GPa,k modulus
+cadmium,,
+calcium,,
+californium,,
+capacity,mAhg^-1,specific capacity
+carbon,,
+carbon equivalent,,
+carbon potential,,
+carburization,,
+carburizing temperature,K,carburization temperature
+carburizing time,seconds,carburization time
+carrier concentration,cm^-3,carrier density|electron concentration|hole concentration
+casting,,
+casting speed,meter/second,
+cerium,,
+cesium,,
+chlorine,,
+chromium,,
+cobalt,,
+coefficient of friction,,
+coercivity,Oe,hc
+coherency strain,,
+cold rolling,,
+compressive strength,Pa,
+concentration,moldm^-3,molar concentration|molarity|solute concentration|dopant concentration|precursor concentration
+conductivity,Sm^-1,electrical conductivity|ionic conductivity
+contact length,meter,contact arc length
+cooling,,
+cooling rate,celcius/second,
+copernicium,,
+copper,,
+core hardness,HV,
+corrosion resistance,,
+coulombic efficiency,%,ce
+cross section,cm^-2,photoionization cross section|absorption cross section
+crystallographic texture,,
+curie temperature,K,
+curium,,
+current,A,drain current|gate current|id|ig
+current density,Acm^-2,j|i density
+darmstadtium,,
+degradation efficiency,%,removal efficiency|conversion efficiency
+density,kgm^-3,mass density|rho
+dielectric strength,meter/volt,
+diffusion,,
+diffusion coefficient,m^2s^-1,diffusivity
+diffusivity,m^2s^-1,diffusion coefficient|diffusion constant
+distance,um,position|length|displacement
+dubnium,,
+ductility,,
+dysprosium,,
+einsteinium,,
+elastic modulus,Pa,elasticity modulus|modulus of elasticity|young's modulus|youngs modulus
+electrical conductivity,Sm^-1,
+elongation,meter,percent elongation|% elongation|eu|et
+endurance limit,,
+energy,eV,activation energy|band gap|bandgap|potential energy
+enthalpy,kJmol^-1,heat of formation
+erbium,,
+europium,,
+fatigue limit,,
+fermium,,
+flerovium,,
+flexural modulus,Pa,
+flexural strength,Pa,
+flow stress,Pa,
+fluidity,Pa^-1s^-1,
+fluorine,,
+fracture strain,,
+fracture strength,Pa,
+fracture toughness,joule/meter^3,
+francium,,
+frequency,Hz,f
+gadolinium,,
+gallium,,
+germanium,,
+gold,,
+grain size,um,particle size|crystallite size
+hafnium,,
+hardenability,,
+hardness,HV,vickers hardness|microhardness
+hassium,,
+heat transfer coefficient,watt/(meter^2*kelvin),
+heating,,
+heating rate,celcius/second,
+heating temperature,K,
+heating time,seconds,
+helium,,
+holding duration,seconds,
+holmium,,
+hot-rolling,,
+hydrogen,,
+impedance,ohm,z
+indium,,
+intensity,a.u.,xrd intensity|pl intensity|emission intensity
+intrinsic diffusivity,m^2s^-1,intrinsic diffusion coefficient
+iodine,,
+iridium,,
+iron,,
+krypton,,
+lanthanum,,
+latent heat,joule,
+lawrencium,,
+lead,,
+lithium,,
+livermorium,,
+lutetium,,
+magnesium,,
+magnetic field,T,applied magnetic field|field
+magnetization,emu g^-1,m|saturation magnetization
+manganese,,
+mass transfer coefficient,meter/second,
+meitnerium,,
+mendelevium,,
+mercury,,
+metallurgical length,meter,
+mobility,cm^2V^-1s^-1,carrier mobility
+molybdenum,,
+neodymium,,
+neon,,
+neptunium,,
+nickel,,
+niobium,,
+nitrogen,,
+nobelium,,
+osmium,,
+oxygen,,
+palladium,,
+permeability,NA^-2,
+permittivity,farad/meter,electric permittivity
+pH,-,acidity
+phase,deg,phase angle
+phosphorus,,
+photon energy,eV,eph
+platinum,,
+plutonium,,
+poissons ratio,,poisson’s ratio|poisson's ratio
+polonium,,
+porosity,%,void fraction
+potassium,,
+potential vs rhe,V vs RHE,electrode potential|overpotential
+power density,Wm^-2,power per area
+praseodymium,,
+preheat temperature,K,
+pressure,Pa,applied pressure|partial pressure
+prior austenitic grain size,,prior austenite grain size
+promethium,,
+protactinium,,
+quenchant temperature,K,
+quenching,,
+quenching medium,,
+quenching medium temperature,K,
+radium,,
+radon,,
+reaction rate,mols^-1,degradation rate|rate constant
+reflectance,%,reflectivity
+remanence,emu g^-1,mr
+residual stress,Pa,
+resilience,joule/meter^3,
+resistance,ohm,r
+resistivity,ohm m,electrical resistivity
+rhenium,,
+rhodium,,
+roentgenium,,
+rubidium,,
+ruthenium,,
+rutherfordium,,
+samarium,,
+scandium,,
+seaborgium,,
+seebeck coefficient,uVK^-1,thermopower
+segregation index,,
+selenium,,
+shear modulus,GPa,g modulus
+shear strength,Pa,
+silicon,,
+silver,,
+soaking,,
+soaking temperature,K,
+soaking time,seconds,
+sodium,,
+solubility,mole/litre,
+specific capacitance,Fg^-1,capacitance
+specific heat,joule,
+specific modulus,Pa,
+specific strength,Pa,
+specific volume,meter^3/kg,
+specific weight,newton/meter^3,
+strain,%,true strain|engineering strain|plastic strain|elongation
+strain rate,s^-1,strain-rate|deformation rate
+strength,Pa,
+stress,MPa,flow stress|yield stress|ultimate tensile strength|uts|tensile stress|compressive stress
+strontium,,
+sulfur,,
+surface area,m^2g^-1,bet surface area|specific surface area
+surface energy,newton/meter,
+surface hardness,HV,
+surface tension,newton/meter,
+tantalum,,
+technetium,,
+tellurium,,
+temperature,K,temp|process temperature|annealing temperature
+temperature above austenization temperature,K,
+temperature at the end of heating,K,
+tempering,,
+tempering temperature,K,
+tempering time,seconds,
+tensile stress,Pa,
+terbium,,
+thallium,,
+thermal conductivity,Wm^-1K^-1,kappa
+thermal expansion coefficient,celcius^-1,coefficient of thermal expansion
+thickness,nm,film thickness|layer thickness|coating thickness
+thorium,,
+thulium,,
+time,s,duration|reaction time|aging time|hold time
+time to reach soaking temperature,seconds,
+tin,,
+titanium,,
+total elongation,meter,tel
+toughness,joule/meter^3,
+transmittance,%,transmission
+tungsten,,
+ultimate tensile strength,Pa,uts|tensile strength|ts
+uniform elongation,meter,uel
+uniform strain,,εu
+ununoctium,,
+ununpentium,,
+ununseptium,,
+ununtrium,,
+uranium,,
+uts to ys ratio,,
+vanadium,,
+viscosity,Pas,dynamic viscosity
+voltage,V,potential|gate voltage|drain voltage|threshold voltage|vth
+water quenching,,
+wavelength,nm,lambda
+work function,eV,phi work function
+xenon,,
+yield point,,
+yield strength,Pa,ys|ys_0.2|ys (0.2% offset)|yield stress|0.2 % yield stress|0.2 % proof strength
+youngs modulus,GPa,young modulus|elastic modulus|e modulus
+ytterbium,,
+yttrium,,
+zeta potential,mV,zeta
+zinc,,
+zirconium,,
