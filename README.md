@@ -35,6 +35,7 @@ python3 -m src.init --pdf-dir "../100 articles" --out outputs --max-pdfs 20 --ma
 - `outputs/csv/ground_truth_xy_points.csv` : point-level extracted x-y data
 - `outputs/csv/ground_truth_figures.csv` : figure-level metadata/scalars
 - `outputs/csv/synthetic_xy_points.csv` : synthetic + augmented x-y points
+- `outputs/plots/raw_plots/` : standardized raw plots rendered from extracted x-y data with automatic labeling
 - `outputs/plots/synthetic_base/` : base synthetic plots
 - `outputs/plots/synthetic_augmented/` : 16 variations per plot
 - `outputs/reports/run_report_<timestamp>.json` : run summary

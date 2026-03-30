@@ -109,6 +109,7 @@ def ensure_dirs(out_dir: Path) -> dict[str, Path]:
         "classified_schematic": arbitrary_dir,
         "classified_arbitrary": arbitrary_dir,
         "csv": out_dir / "csv",
+        "plots_raw": out_dir / "plots" / "raw_plots",
         "plots_base": out_dir / "plots" / "synthetic_base",
         "plots_aug": out_dir / "plots" / "synthetic_augmented",
         "reports": out_dir / "reports",
@@ -787,6 +788,197 @@ def _bbox_iou(a: tuple[int, int, int, int], b: tuple[int, int, int, int]) -> flo
     return inter / max(1e-9, (a_area + b_area - inter))
 
 
+def _bbox_overlap_on_smaller(a: tuple[float, float, float, float], b: tuple[float, float, float, float]) -> float:
+    ax0, ay0, ax1, ay1 = a
+    bx0, by0, bx1, by1 = b
+    ix0 = max(ax0, bx0)
+    iy0 = max(ay0, by0)
+    ix1 = min(ax1, bx1)
+    iy1 = min(ay1, by1)
+    iw = max(0.0, ix1 - ix0)
+    ih = max(0.0, iy1 - iy0)
+    inter = iw * ih
+    if inter <= 0:
+        return 0.0
+    a_area = max(1e-9, (ax1 - ax0) * (ay1 - ay0))
+    b_area = max(1e-9, (bx1 - bx0) * (by1 - by0))
+    return float(inter / min(a_area, b_area))
+
+
+def _axis_exactness_score(
+    dark: np.ndarray,
+    row: int,
+    col: int,
+    row_right: int,
+    col_top: int,
+) -> tuple[float, float]:
+    h, w = dark.shape
+    row = int(np.clip(row, 0, max(0, h - 1)))
+    col = int(np.clip(col, 0, max(0, w - 1)))
+    row_right = int(np.clip(row_right, col, max(0, w - 1)))
+    col_top = int(np.clip(col_top, 0, row))
+
+    row_slice = dark[row, col : row_right + 1]
+    col_slice = dark[col_top : row + 1, col]
+    if row_slice.size == 0 or col_slice.size == 0:
+        return 0.0, 0.0
+
+    horiz = float(row_slice.mean())
+    vert = float(col_slice.mean())
+
+    if row > 0:
+        horiz -= 0.18 * float(dark[row - 1, col : row_right + 1].mean())
+    if row + 1 < h:
+        horiz -= 0.18 * float(dark[row + 1, col : row_right + 1].mean())
+    if col > 0:
+        vert -= 0.18 * float(dark[col_top : row + 1, col - 1].mean())
+    if col + 1 < w:
+        vert -= 0.18 * float(dark[col_top : row + 1, col + 1].mean())
+
+    return max(0.0, horiz), max(0.0, vert)
+
+
+def _is_composite_axis_pair(
+    axis_pair: AxisPair,
+    axis_pairs: list[AxisPair],
+    *,
+    img_w: int,
+    img_h: int,
+) -> bool:
+    x0, y0, x1, y1 = axis_pair.plot_bbox
+    bw = max(1, x1 - x0)
+    bh = max(1, y1 - y0)
+    if bw < int(0.52 * img_w) and bh < int(0.62 * img_h):
+        return False
+
+    inner_hits = 0
+    saw_strong_inner = False
+    for other in axis_pairs:
+        if other is axis_pair:
+            continue
+        ox0, oy0, ox1, oy1 = other.plot_bbox
+        obw = max(1, ox1 - ox0)
+        obh = max(1, oy1 - oy0)
+        if obw > int(0.48 * img_w):
+            continue
+        if ox0 < x0 - 0.04 * bw or ox1 > x1 + 0.04 * bw:
+            continue
+        if oy0 < y0 - 0.12 * bh or oy1 > y1 + 0.12 * bh:
+            continue
+        if abs(other.x_axis_row - axis_pair.x_axis_row) > max(18, int(0.12 * bh)):
+            continue
+        if other.score < axis_pair.score - 0.45:
+            continue
+        inner_hits += 1
+        if obw <= int(0.45 * img_w):
+            saw_strong_inner = True
+        if inner_hits >= 2:
+            return True
+    if bw >= int(0.72 * img_w) and saw_strong_inner:
+        return True
+    return False
+
+
+def _filter_redundant_assets(assets: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    kept: list[dict[str, Any]] = []
+    grouped: dict[tuple[str, int], list[dict[str, Any]]] = {}
+    for asset in assets:
+        key = (str(asset.get("pdf_file") or ""), int(asset.get("page_index") or 0))
+        grouped.setdefault(key, []).append(asset)
+
+    for group_assets in grouped.values():
+        ranked = []
+        for asset in group_assets:
+            axis_meta = asset.get("axis_meta") or {}
+            pb = _safe_float_bbox(axis_meta.get("plot_bbox_page"))
+            src_idx = int(asset.get("source_image_index") or 0)
+            source_kind = "page_level" if src_idx >= 900 else "image_object"
+            if pb is None:
+                ranked.append((asset, None, float("inf"), 0, source_kind))
+                continue
+            ax0, ay0, ax1, ay1 = pb
+            area = max(1e-9, (ax1 - ax0) * (ay1 - ay0))
+            quality = 0
+            if str(axis_meta.get("x_label") or "x") != "x":
+                quality += 1
+            if str(axis_meta.get("y_label") or "y") != "y":
+                quality += 1
+            if str(axis_meta.get("x_unit") or "arb") != "arb":
+                quality += 1
+            if str(axis_meta.get("y_unit") or "arb") != "arb":
+                quality += 1
+            ranked.append((asset, pb, area, quality, source_kind))
+
+        drop_idx: set[int] = set()
+        for i, (_, pbi, areai, quality_i, source_i) in enumerate(ranked):
+            if pbi is None or i in drop_idx:
+                continue
+            for j, (_, pbj, areaj, quality_j, source_j) in enumerate(ranked):
+                if i == j or pbj is None or j in drop_idx:
+                    continue
+                overlap_small = _bbox_overlap_on_smaller(pbi, pbj)
+                if overlap_small < 0.82:
+                    continue
+                if (
+                    source_i == "image_object"
+                    and source_j == "page_level"
+                    and areai > 1.20 * areaj
+                    and quality_i <= quality_j
+                ):
+                    drop_idx.add(i)
+                    break
+                if areai > 1.55 * areaj and quality_i <= quality_j:
+                    drop_idx.add(i)
+                    break
+
+        # Broader image-object crops can still survive when they sit adjacent to,
+        # rather than directly on top of, tighter page-level subplot crops from the
+        # same multi-panel row. Suppress those umbrella crops by row proximity.
+        for i, (_, pbi, areai, quality_i, source_i) in enumerate(ranked):
+            if pbi is None or i in drop_idx or source_i != "image_object":
+                continue
+            ax0, ay0, ax1, ay1 = pbi
+            aw = max(1e-9, ax1 - ax0)
+            ah = max(1e-9, ay1 - ay0)
+            if aw < 0.42:
+                continue
+            nearby_small = 0
+            best_quality = -1
+            for j, (_, pbj, areaj, quality_j, source_j) in enumerate(ranked):
+                if i == j or pbj is None or j in drop_idx or source_j != "page_level":
+                    continue
+                bx0, by0, bx1, by1 = pbj
+                bw = max(1e-9, bx1 - bx0)
+                bh = max(1e-9, by1 - by0)
+                if bw > 0.70 * aw:
+                    continue
+                ayc = 0.5 * (ay0 + ay1)
+                byc = 0.5 * (by0 + by1)
+                if abs(ayc - byc) > 0.22 * max(ah, bh):
+                    continue
+                vertical_overlap = max(0.0, min(ay1, by1) - max(ay0, by0)) / max(1e-9, min(ah, bh))
+                if vertical_overlap < 0.45:
+                    continue
+                horizontal_gap = max(0.0, max(ax0, bx0) - min(ax1, bx1))
+                overlap_small = _bbox_overlap_on_smaller(pbi, pbj)
+                if overlap_small < 0.20 and horizontal_gap > 0.20 * aw:
+                    continue
+                nearby_small += 1
+                best_quality = max(best_quality, quality_j)
+            if nearby_small >= 2 and quality_i <= best_quality:
+                drop_idx.add(i)
+
+        for idx, (asset, _, _, _, _) in enumerate(ranked):
+            if idx in drop_idx:
+                try:
+                    Path(str(asset.get("image_path") or "")).unlink(missing_ok=True)
+                except Exception:
+                    pass
+                continue
+            kept.append(asset)
+    return kept
+
+
 def _detect_axis_pairs(gray: np.ndarray, max_pairs: int = 6) -> list[AxisPair]:
     h, w = gray.shape
     if h < 80 or w < 100:
@@ -893,6 +1085,10 @@ def _detect_axis_pairs(gray: np.ndarray, max_pairs: int = 6) -> list[AxisPair]:
                 if tr_density < tr_min:
                     continue
 
+                horiz_exact, vert_exact = _axis_exactness_score(dark, int(r), int(c), int(row_right), int(col_top))
+                if horiz_exact < 0.40 or vert_exact < 0.40:
+                    continue
+
                 x0 = max(0, c + 2)
                 y1 = max(1, r - 1)
                 if embedded_mode:
@@ -913,7 +1109,14 @@ def _detect_axis_pairs(gray: np.ndarray, max_pairs: int = 6) -> list[AxisPair]:
                     if area_ratio < 0.003 or area_ratio > 0.11:
                         continue
 
-                score = 2.2 * row_run + 2.1 * col_run + 1.2 * inter_strength + 2.0 * tr_density
+                score = (
+                    2.2 * row_run
+                    + 2.1 * col_run
+                    + 1.2 * inter_strength
+                    + 2.0 * tr_density
+                    + 1.5 * horiz_exact
+                    + 1.5 * vert_exact
+                )
                 if score < score_min:
                     continue
                 candidates.append(
@@ -1684,6 +1887,8 @@ def _label_unit_from_phrase(text: str, default_label: str, default_unit: str) ->
     if m:
         name = _extract_label_before_delimiter(m.group(1))
         unit = _clean_unit(m.group(2))
+        if name.lower() in {"band", "bands"} and unit.lower() == "s":
+            return default_label, default_unit, "default"
         if _is_plausible_axis_label(name):
             if _is_probable_unit(unit):
                 return name, unit, "explicit"
@@ -1740,6 +1945,157 @@ def _extract_vertical_label(words: list[tuple], x_tol: float = 8.0) -> str:
     return _clean_axis_label_phrase(text)
 
 
+def _extract_parallel_axis_text(
+    words: list[tuple],
+    *,
+    orientation: str,
+    axis_coord: float,
+    axis_min: float,
+    axis_max: float,
+    image_span_x: float,
+    image_span_y: float,
+) -> str:
+    if not words:
+        return ""
+
+    def _collect(horizontal_relaxed: bool = False) -> list[tuple]:
+        selected_local: list[tuple] = []
+        if orientation == "horizontal":
+            if horizontal_relaxed:
+                band_top = axis_coord - 0.02 * image_span_y
+                band_bottom = axis_coord + 0.38 * image_span_y
+                x_pad = 0.08 * image_span_x
+            else:
+                band_top = axis_coord + 0.015 * image_span_y
+                band_bottom = axis_coord + 0.24 * image_span_y
+                x_pad = 0.02 * image_span_x
+            for w in words:
+                wx0, wy0, wx1, wy1 = float(w[0]), float(w[1]), float(w[2]), float(w[3])
+                text = str(w[4]).strip()
+                if not text or _parse_numeric_token(text) is not None:
+                    continue
+                cx = 0.5 * (wx0 + wx1)
+                cy = 0.5 * (wy0 + wy1)
+                width = wx1 - wx0
+                height = wy1 - wy0
+                if cx < axis_min - x_pad or cx > axis_max + x_pad:
+                    continue
+                if cy < band_top or cy > band_bottom:
+                    continue
+                if not horizontal_relaxed and width < 0.90 * height:
+                    continue
+                selected_local.append(w)
+            return selected_local
+
+        if horizontal_relaxed:
+            band_left = axis_coord - 0.34 * image_span_x
+            band_right = axis_coord + 0.03 * image_span_x
+            y_pad_top = 0.08 * image_span_y
+            y_pad_bottom = 0.08 * image_span_y
+        else:
+            band_left = axis_coord - 0.22 * image_span_x
+            band_right = axis_coord - 0.01 * image_span_x
+            y_pad_top = 0.03 * image_span_y
+            y_pad_bottom = 0.02 * image_span_y
+        for w in words:
+            wx0, wy0, wx1, wy1 = float(w[0]), float(w[1]), float(w[2]), float(w[3])
+            text = str(w[4]).strip()
+            if not text or _parse_numeric_token(text) is not None:
+                continue
+            cx = 0.5 * (wx0 + wx1)
+            cy = 0.5 * (wy0 + wy1)
+            width = wx1 - wx0
+            height = wy1 - wy0
+            if cy < axis_min - y_pad_top or cy > axis_max + y_pad_bottom:
+                continue
+            if cx < band_left or cx > band_right:
+                continue
+            if not horizontal_relaxed and height < 0.85 * width and len(text) <= 2:
+                continue
+            selected_local.append(w)
+        return selected_local
+
+    selected = _collect(horizontal_relaxed=False)
+    if orientation == "horizontal":
+        text = _words_to_text(selected, key_axis=0)
+        if text:
+            return text
+        return _words_to_text(_collect(horizontal_relaxed=True), key_axis=0)
+
+    vertical = _extract_vertical_label(selected, x_tol=max(6.0, 0.025 * image_span_x))
+    if len(vertical) >= 3:
+        return vertical
+    text = _words_to_text(selected, key_axis=1)
+    if text:
+        return text
+    selected_relaxed = _collect(horizontal_relaxed=True)
+    vertical_relaxed = _extract_vertical_label(selected_relaxed, x_tol=max(8.0, 0.04 * image_span_x))
+    if len(vertical_relaxed) >= 3:
+        return vertical_relaxed
+    return _words_to_text(selected_relaxed, key_axis=1)
+
+
+def _group_words_into_lines(words: list[tuple], y_tol: float = 12.0) -> list[list[tuple]]:
+    if not words:
+        return []
+    ordered = sorted(words, key=lambda w: (float(w[1]), float(w[0])))
+    lines: list[list[tuple]] = []
+    for w in ordered:
+        cy = 0.5 * (float(w[1]) + float(w[3]))
+        if not lines:
+            lines.append([w])
+            continue
+        prev = lines[-1]
+        prev_cy = float(np.mean([0.5 * (float(p[1]) + float(p[3])) for p in prev]))
+        if abs(cy - prev_cy) <= y_tol:
+            prev.append(w)
+        else:
+            lines.append([w])
+    return lines
+
+
+def _best_axis_phrase_candidate(words: list[tuple], default_label: str, span_x: float, vertical_ok: bool = False) -> tuple[str, str, str] | None:
+    candidates: list[tuple[int, int, str, str, str]] = []
+    for line in _group_words_into_lines(words, y_tol=max(10.0, 0.018 * span_x)):
+        phrase = _words_to_text(line, key_axis=0)
+        if not phrase:
+            continue
+        lab, unit, src = _label_unit_from_phrase(phrase, default_label, "arb")
+        score = 0
+        if src in {"explicit", "slash", "suffix"}:
+            score += 4
+        if lab != default_label:
+            score += 2
+        if unit != "arb":
+            score += 2
+        if lab != default_label and _is_axis_semantic_label(lab):
+            score += 2
+        if score > 0:
+            candidates.append((score, len(line), lab, unit, src))
+
+    if vertical_ok:
+        vertical_phrase = _extract_vertical_label(words, x_tol=max(8.0, 0.03 * span_x))
+        if vertical_phrase:
+            lab, unit, src = _label_unit_from_phrase(vertical_phrase, default_label, "arb")
+            score = 0
+            if src in {"explicit", "slash", "suffix"}:
+                score += 4
+            if lab != default_label:
+                score += 2
+            if unit != "arb":
+                score += 2
+            if lab != default_label and _is_axis_semantic_label(lab):
+                score += 2
+            if score > 0:
+                candidates.append((score, max(4, len(vertical_phrase)), lab, unit, src))
+
+    if not candidates:
+        return None
+    candidates.sort(key=lambda item: (item[0], item[1]), reverse=True)
+    _, _, lab, unit, src = candidates[0]
+    return lab, unit, src
+
+
 def _guess_unit_from_label(label: str) -> str:
     std_unit = _lookup_standard_unit(label)
     if std_unit:
@@ -1770,6 +2126,7 @@ def _guess_unit_from_label(label: str) -> str:
         "drain current": "A",
         "frequency": "Hz",
         "wavelength": "nm",
+        "wavenumber": "cm^-1",
         "photon energy": "eV",
         "energy": "eV",
         "resistance": "ohm",
@@ -1817,10 +2174,13 @@ def _has_axis_keyword(text: str) -> bool:
         "current",
         "frequency",
         "wavelength",
+        "wavenumber",
         "energy",
         "magnetization",
         "dm/dh",
         "intensity",
+        "transmittance",
+        "absorbance",
         "resistance",
         "conductivity",
         "modulus",
@@ -1897,6 +2257,8 @@ def _infer_axis_from_context_text(text: str, panel_hint: str | None = None) -> t
         return "temperature", "°C", "mass loss", "%"
     if "xrd" in panel_text or "2θ" in text or "2theta" in panel_text or "phi-scan" in panel_text:
         return "angle", "deg", "intensity", "a.u."
+    if "ftir" in panel_text or ("transmittance" in panel_text and "wavenumber" in panel_text):
+        return "wavenumber", "cm^-1", "transmittance", "%"
     if "uv-vis" in panel_text or "uv–vis" in panel_text or "absorption spectra" in panel_text:
         return "wavelength", "nm", "absorbance", "a.u."
     if "pl spectra" in panel_text:
@@ -1936,6 +2298,8 @@ def _infer_axis_from_context_text(text: str, panel_hint: str | None = None) -> t
         return "length", length_unit_full, "voltage", "V"
     if "photoionization cross section" in low_norm or ("cross section" in low_norm and "photon energy" in low_norm):
         return "photon energy", "eV", "photoionization cross section", "cm^-2"
+    if "ftir" in low_norm or ("transmittance" in low_norm and "wavenumber" in low_norm):
+        return "wavenumber", "cm^-1", "transmittance", "%"
     if "degradation" in low_norm and ("catalyst" in low_norm or "imidacloprid" in low_norm):
         return "time", "min", "degradation efficiency", "%"
     if ("dynamic light scattering" in low_norm or re.search(r"\bdls\b", low_norm)) and (
@@ -2361,9 +2725,10 @@ def _extract_axis_metadata_from_figure(
     b0 = _px_to_page(image_rect, bx0, by0, img_w, img_h)
     b1 = _px_to_page(image_rect, bx1, by1, img_w, img_h)
 
-    # Use mostly in-figure text for axis metadata to avoid caption bleed.
-    pad_x = max(1.0, 0.01 * image_rect.width)
-    pad_y = max(1.0, 0.01 * image_rect.height)
+    # Expand the OCR clip around the extracted figure so labels that sit farther from
+    # the axis lines, especially in large or multi-panel crops, remain visible.
+    pad_x = max(12.0, 0.08 * image_rect.width)
+    pad_y = max(12.0, 0.12 * image_rect.height)
     clip = fitz.Rect(
         max(page.rect.x0, image_rect.x0 - pad_x),
         max(page.rect.y0, image_rect.y0 - pad_y),
@@ -2411,12 +2776,53 @@ def _extract_axis_metadata_from_figure(
     if y_fit is not None:
         y_scale = y_fit
 
-    x_label_guess = _words_to_text(x_label_words, key_axis=0)
-    y_label_guess_h = _words_to_text(y_label_words, key_axis=1)
-    y_label_guess_v = _extract_vertical_label(y_label_words, x_tol=max(6.0, 0.03 * image_rect.width))
-    y_label_guess = y_label_guess_v if len(y_label_guess_v) >= 3 else y_label_guess_h
+    x_label_guess = _extract_parallel_axis_text(
+        words,
+        orientation="horizontal",
+        axis_coord=x_axis_page_y,
+        axis_min=y_axis_page_x,
+        axis_max=x_right_page,
+        image_span_x=image_rect.width,
+        image_span_y=image_rect.height,
+    )
+    y_label_guess = _extract_parallel_axis_text(
+        words,
+        orientation="vertical",
+        axis_coord=y_axis_page_x,
+        axis_min=y_top_page,
+        axis_max=x_axis_page_y,
+        image_span_x=image_rect.width,
+        image_span_y=image_rect.height,
+    )
+    if not x_label_guess:
+        x_label_guess = _words_to_text(x_label_words, key_axis=0)
+    if not y_label_guess:
+        y_label_guess_h = _words_to_text(y_label_words, key_axis=1)
+        y_label_guess_v = _extract_vertical_label(y_label_words, x_tol=max(6.0, 0.03 * image_rect.width))
+        y_label_guess = y_label_guess_v if len(y_label_guess_v) >= 3 else y_label_guess_h
 
-    if x_label_guess:
+    x_phrase = _best_axis_phrase_candidate(x_label_words, "x", image_rect.width, vertical_ok=False)
+    if x_phrase is not None:
+        x_lab, x_uni, x_unit_src = x_phrase
+        if x_lab != "x":
+            x_label = x_lab
+            x_label_source = "local"
+        if x_uni != "arb":
+            x_unit = x_uni
+            x_unit_source = f"local_{x_unit_src}"
+
+    if y_label == "y" or y_unit == "arb":
+        y_phrase = _best_axis_phrase_candidate(y_label_words, "y", image_rect.width, vertical_ok=True)
+        if y_phrase is not None:
+            y_lab, y_uni, y_unit_src = y_phrase
+            if y_lab != "y":
+                y_label = y_lab
+                y_label_source = "local"
+            if y_uni != "arb":
+                y_unit = y_uni
+                y_unit_source = f"local_{y_unit_src}"
+
+    if x_label_guess and x_label == "x" and x_unit == "arb":
         x_lab, x_uni, x_unit_src = _label_unit_from_phrase(x_label_guess, "x", "arb")
         if x_lab != "x":
             x_label = x_lab
@@ -2425,7 +2831,7 @@ def _extract_axis_metadata_from_figure(
             x_unit = x_uni
             x_unit_source = f"local_{x_unit_src}"
 
-    if y_label_guess:
+    if y_label_guess and y_label == "y" and y_unit == "arb":
         y_lab, y_uni, y_unit_src = _label_unit_from_phrase(y_label_guess, "y", "arb")
         if y_lab != "y":
             y_label = y_lab
@@ -2769,6 +3175,120 @@ def _expanded_subplot_crop_bounds(
     cy1 = min(img_h, y1 + pad_b)
 
     return int(cx0), int(cy0), int(cx1), int(cy1)
+
+
+def _boxed_subplot_crop_bounds(
+    gray: np.ndarray,
+    axis_pair: AxisPair,
+    *,
+    left_frac: float = 0.24,
+    right_frac: float = 0.10,
+    top_frac: float = 0.10,
+    bottom_frac: float = 0.28,
+    min_pad_px: int = 10,
+) -> tuple[int, int, int, int]:
+    img_h, img_w = gray.shape
+    x0, y0, x1, y1 = [int(v) for v in axis_pair.plot_bbox]
+    bw = max(1, x1 - x0)
+    bh = max(1, y1 - y0)
+    dark = gray < 165
+
+    def _best_row(start: int, end: int, sx0: int, sx1: int, target: int) -> int | None:
+        best_idx = None
+        best_score = -1e9
+        sx0 = max(0, sx0)
+        sx1 = min(img_w, sx1)
+        if sx1 - sx0 < 12:
+            return None
+        for r in range(max(0, start), min(img_h, end)):
+            seg = dark[r, sx0:sx1]
+            if seg.size < 12:
+                continue
+            dens = float(seg.mean())
+            run = _longest_true_run(seg) / max(1.0, float(seg.size))
+            score = 1.4 * dens + 1.8 * run - 0.0015 * abs(r - target)
+            if run >= 0.55 and dens >= 0.28 and score > best_score:
+                best_score = score
+                best_idx = r
+        return best_idx
+
+    def _best_col(start: int, end: int, sy0: int, sy1: int, target: int) -> int | None:
+        best_idx = None
+        best_score = -1e9
+        sy0 = max(0, sy0)
+        sy1 = min(img_h, sy1)
+        if sy1 - sy0 < 12:
+            return None
+        for c in range(max(0, start), min(img_w, end)):
+            seg = dark[sy0:sy1, c]
+            if seg.size < 12:
+                continue
+            dens = float(seg.mean())
+            run = _longest_true_run(seg) / max(1.0, float(seg.size))
+            score = 1.4 * dens + 1.8 * run - 0.0015 * abs(c - target)
+            if run >= 0.55 and dens >= 0.28 and score > best_score:
+                best_score = score
+                best_idx = c
+        return best_idx
+
+    left_line = _best_col(
+        int(axis_pair.y_axis_col - 0.10 * bw),
+        int(axis_pair.y_axis_col + 0.06 * bw) + 1,
+        int(y0 - 0.04 * bh),
+        int(y1 + 0.06 * bh),
+        axis_pair.y_axis_col,
+    )
+    right_line = _best_col(
+        int(x1 - 0.05 * bw),
+        int(x1 + 0.20 * bw) + 1,
+        int(y0 - 0.04 * bh),
+        int(y1 + 0.06 * bh),
+        x1,
+    )
+    top_line = _best_row(
+        int(y0 - 0.18 * bh),
+        int(y0 + 0.10 * bh) + 1,
+        int((left_line if left_line is not None else axis_pair.y_axis_col) - 0.02 * bw),
+        int((right_line if right_line is not None else x1) + 0.02 * bw),
+        y0,
+    )
+    bottom_line = _best_row(
+        int(axis_pair.x_axis_row - 0.06 * bh),
+        int(axis_pair.x_axis_row + 0.12 * bh) + 1,
+        int((left_line if left_line is not None else axis_pair.y_axis_col) - 0.02 * bw),
+        int((right_line if right_line is not None else x1) + 0.02 * bw),
+        axis_pair.x_axis_row,
+    )
+
+    panel_x0 = left_line if left_line is not None else axis_pair.y_axis_col
+    panel_x1 = right_line if right_line is not None else x1
+    panel_y0 = top_line if top_line is not None else y0
+    panel_y1 = bottom_line if bottom_line is not None else axis_pair.x_axis_row
+
+    if panel_x1 <= panel_x0 or panel_y1 <= panel_y0:
+        return _expanded_subplot_crop_bounds(
+            axis_pair.plot_bbox,
+            img_w=img_w,
+            img_h=img_h,
+            left_frac=left_frac,
+            right_frac=right_frac,
+            top_frac=top_frac,
+            bottom_frac=bottom_frac,
+            min_pad_px=min_pad_px,
+            full_width=False,
+        )
+
+    return _expanded_subplot_crop_bounds(
+        (int(panel_x0), int(panel_y0), int(panel_x1), int(panel_y1)),
+        img_w=img_w,
+        img_h=img_h,
+        left_frac=left_frac,
+        right_frac=right_frac,
+        top_frac=top_frac,
+        bottom_frac=bottom_frac,
+        min_pad_px=min_pad_px,
+        full_width=False,
+    )
 
 
 def _downsample_xy(x: np.ndarray, y: np.ndarray, max_points: int = 260) -> tuple[np.ndarray, np.ndarray]:
@@ -3653,6 +4173,7 @@ def _synthetic_points_fieldnames() -> list[str]:
     return [
         "figure_id",
         "parent_figure_id",
+        "raw_figure_id",
         "variation_id",
         "variation_name",
         "pdf_file",
@@ -3662,6 +4183,13 @@ def _synthetic_points_fieldnames() -> list[str]:
         "series_label",
         "x",
         "y",
+        "raw_image_file",
+        "raw_series_id",
+        "raw_series_label",
+        "raw_points_csv",
+        "raw_figures_csv",
+        "raw_series_scalars_json",
+        "raw_figure_scalars_json",
         "x_label",
         "x_unit",
         "y_label",
@@ -3678,6 +4206,10 @@ def _synthetic_points_fieldnames() -> list[str]:
         "resolution_blurriness",
         "complex_feature_distortion",
     ]
+
+
+def _raw_series_lookup(fig: FigureData) -> dict[str, SeriesData]:
+    return {str(series.series_id): series for series in fig.series}
 
 
 def _classify_figure_image(
@@ -3811,6 +4343,8 @@ def extract_plot_images_from_pdf(
             if axis_pairs and classification == "xy_plots":
                 image_rect = rects[0] if rects else None
                 for sub_index, axis_pair in enumerate(axis_pairs):
+                    if _is_composite_axis_pair(axis_pair, axis_pairs, img_w=int(arr.shape[1]), img_h=int(arr.shape[0])):
+                        continue
                     axis_meta = _extract_axis_metadata_from_figure(
                         page=page,
                         image_rect=image_rect,
@@ -3870,16 +4404,14 @@ def extract_plot_images_from_pdf(
                     asset_image_index = int(image_index * 100 + sub_index)
                     out_name = f"{pdf_slug}_p{page_index:03d}_i{image_index:03d}_s{sub_index:02d}.png"
                     out_path = pdf_out_dir / out_name
-                    cx0, cy0, cx1, cy1 = _expanded_subplot_crop_bounds(
-                        axis_pair.plot_bbox,
-                        img_w=int(arr.shape[1]),
-                        img_h=int(arr.shape[0]),
+                    cx0, cy0, cx1, cy1 = _boxed_subplot_crop_bounds(
+                        gray,
+                        axis_pair,
                         left_frac=0.26,
                         right_frac=0.11,
                         top_frac=0.10,
                         bottom_frac=0.30,
                         min_pad_px=10,
-                        full_width=True,
                     )
                     if cx1 - cx0 < 40 or cy1 - cy0 < 35:
                         continue
@@ -3972,6 +4504,13 @@ def extract_plot_images_from_pdf(
         if page_rgb is not None and page_gray is not None:
             page_axis_pairs = _detect_axis_pairs(page_gray, max_pairs=24)
             for page_sub_index, axis_pair in enumerate(page_axis_pairs):
+                if _is_composite_axis_pair(
+                    axis_pair,
+                    page_axis_pairs,
+                    img_w=int(page_rgb.shape[1]),
+                    img_h=int(page_rgb.shape[0]),
+                ):
+                    continue
                 gx_ticks, gy_ticks = _estimate_axis_tick_counts(page_gray, axis_pair)
                 if int(gx_ticks) < 2 or int(gy_ticks) < 2:
                     continue
@@ -4009,16 +4548,14 @@ def extract_plot_images_from_pdf(
                 if pb is not None and any(_bbox_iou(pb, prev) > 0.58 for prev in accepted_page_bboxes):
                     continue
 
-                cx0, cy0, cx1, cy1 = _expanded_subplot_crop_bounds(
-                    axis_pair.plot_bbox,
-                    img_w=int(page_rgb.shape[1]),
-                    img_h=int(page_rgb.shape[0]),
+                cx0, cy0, cx1, cy1 = _boxed_subplot_crop_bounds(
+                    page_gray,
+                    axis_pair,
                     left_frac=0.28,
                     right_frac=0.12,
                     top_frac=0.12,
                     bottom_frac=0.32,
                     min_pad_px=12,
-                    full_width=True,
                 )
                 if cx1 - cx0 < 40 or cy1 - cy0 < 35:
                     continue
@@ -4062,7 +4599,7 @@ def extract_plot_images_from_pdf(
                     accepted_page_bboxes.append(pb)
 
     doc.close()
-    return assets
+    return _filter_redundant_assets(assets)
 
 
 def _variation_stats_row(fig: FigureData, parent_figure_id: str, cfg: VariationConfig, plot_path: Path) -> dict[str, Any]:
@@ -4149,6 +4686,7 @@ def run_pipeline(
 
     variations = build_variations()
 
+    raw_plots_count = 0
     synthetic_points_count = 0
     synthetic_plots_count = 0
     synthetic_base_count = 0
@@ -4188,7 +4726,13 @@ def run_pipeline(
         vars_writer.writeheader()
 
         for fig in figures:
+            raw_plot = dirs["plots_raw"] / f"{_slug(fig.figure_id)}.png"
+            if render_plot(fig, raw_plot):
+                raw_plots_count += 1
+
             base_fig = generate_synthetic_base_figure(fig, seed=seed)
+            raw_series_by_id = _raw_series_lookup(fig)
+            raw_figure_scalars_json = json.dumps(_figure_scalars(fig), sort_keys=True)
             base_plot = dirs["plots_base"] / f"{_slug(base_fig.figure_id)}.png"
             if render_plot(base_fig, base_plot):
                 synthetic_plots_count += 1
@@ -4209,10 +4753,17 @@ def run_pipeline(
 
                 mode = cfg.as_mode_dict()
                 for s in varied.series:
+                    raw_series = raw_series_by_id.get(str(s.series_id))
+                    raw_series_id = raw_series.series_id if raw_series is not None else ""
+                    raw_series_label = raw_series.series_label if raw_series is not None else ""
+                    raw_series_scalars_json = (
+                        json.dumps(_series_scalars(raw_series), sort_keys=True) if raw_series is not None else ""
+                    )
                     for x_val, y_val in zip(s.x, s.y):
                         row = {
                             "figure_id": varied.figure_id,
                             "parent_figure_id": base_fig.figure_id,
+                            "raw_figure_id": fig.figure_id,
                             "variation_id": cfg.variation_id,
                             "variation_name": cfg.name,
                             "pdf_file": varied.pdf_file,
@@ -4222,6 +4773,13 @@ def run_pipeline(
                             "series_label": s.series_label,
                             "x": float(x_val),
                             "y": float(y_val),
+                            "raw_image_file": fig.image_file,
+                            "raw_series_id": raw_series_id,
+                            "raw_series_label": raw_series_label,
+                            "raw_points_csv": str(gt_points_csv),
+                            "raw_figures_csv": str(gt_figures_csv),
+                            "raw_series_scalars_json": raw_series_scalars_json,
+                            "raw_figure_scalars_json": raw_figure_scalars_json,
                             "x_label": varied.x_label,
                             "x_unit": varied.x_unit,
                             "y_label": varied.y_label,
@@ -4248,6 +4806,7 @@ def run_pipeline(
         "ground_truth_figures_csv": str(gt_figures_csv),
         "synthetic_points_csv": str(synthetic_points_csv),
         "synthetic_variations_csv": str(synthetic_variation_csv),
+        "raw_plots": raw_plots_count,
         "base_synthetic_plots": synthetic_base_count,
         "synthetic_aug_variations_per_plot": len(variations),
         "synthetic_plots_written_total": synthetic_plots_count,
