@@ -1,4 +1,4 @@
-# week2
+# KnowMat Training Data Generation
 
 ## Purpose
 
