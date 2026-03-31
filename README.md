@@ -1,4 +1,4 @@
-# KnowMat Training Data Generation
+# Materials VLM training data generation
 
 ## Purpose
 
