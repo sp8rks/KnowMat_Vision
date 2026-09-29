@@ -1,0 +1,83 @@
+{
+  "pdf": "/Users/kartikbudhani/Desktop/KnowMat_Vision/papers/p-1.pdf",
+  "figures": [
+    {
+      "figure_id": "fig_0",
+      "figure_number": "Figure 1",
+      "caption": "Fig. 1. Neutron diffraction patterns of the four HEA samples.",
+      "page": 2,
+      "bbox": {
+        "x0": 145.9,
+        "y0": 66.0,
+        "x1": 458.2,
+        "y1": 312.6
+      },
+      "image_file": "fig_0_fig1_p2.png"
+    },
+    {
+      "figure_id": "fig_1",
+      "figure_number": "Figure 2",
+      "caption": "Fig. 2. SEMmicrographs of electrochemical polished HEAs; (a) alloy A, (b) alloy B, (c) alloy P1 and (d) alloy P2 at lowmagnification. An enlarged view of the precipitate morphology is given in (e) and (f) for alloy P1 and P2, respectively.",
+      "page": 3,
+      "bbox": {
+        "x0": 133.5,
+        "y0": 66.6,
+        "x1": 451.2,
+        "y1": 545.8
+      },
+      "image_file": "fig_1_fig2_p3.png"
+    },
+    {
+      "figure_id": "fig_2",
+      "figure_number": "Figure 3",
+      "caption": "Fig. 3. Bright TEM field image of Region I and II (a); (b) and (c) are the corresponding bright and dark field images showing the particles distribution in Region I, (d) high-resolution TEM image showing the interface between one single nano-particle and fcc matrix, with relative FFT patterns are shown in the left; the atomic arrangement are directly distinguished.",
+      "page": 4,
+      "bbox": {
+        "x0": 142.8,
+        "y0": 74.2,
+        "x1": 461.1,
+        "y1": 700.6
+      },
+      "image_file": "fig_2_fig3_p4.png"
+    },
+    {
+      "figure_id": "fig_3",
+      "figure_number": "Figure 5",
+      "caption": "Fig. 5. Tensile properties of alloys A, B, P1 and P2 at room temperature (a), and the map of ultimate tensile strengtheductility combinations of various advanced steels including P1 and P2 HEAs (b), showing great advantage of the current HEAs.",
+      "page": 6,
+      "bbox": {
+        "x0": 54.6,
+        "y0": 66.3,
+        "x1": 281.8,
+        "y1": 420.6
+      },
+      "image_file": "fig_3_fig5_p6.png"
+    },
+    {
+      "figure_id": "fig_4",
+      "figure_number": "Figure 6",
+      "caption": "Fig. 6. The peak broadening b as a function of 4tanq; the slope of the linear fit shows the value of micro strain ε.",
+      "page": 7,
+      "bbox": {
+        "x0": 44.3,
+        "y0": 556.0,
+        "x1": 270.6,
+        "y1": 718.4
+      },
+      "image_file": "fig_4_fig6_p7.png"
+    },
+    {
+      "figure_id": "fig_5",
+      "figure_number": "Figure 7",
+      "caption": "Fig. 7. The strength contributions from different hardening mechanisms. The calculation values agree well with the experimental data.",
+      "page": 8,
+      "bbox": {
+        "x0": 322.3,
+        "y0": 173.0,
+        "x1": 549.7,
+        "y1": 334.2
+      },
+      "image_file": "fig_5_fig7_p8.png"
+    }
+  ]
+}

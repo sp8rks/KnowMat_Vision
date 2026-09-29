@@ -1,0 +1,96 @@
+{
+  "pdf": "/Users/kartikbudhani/Desktop/KnowMat_Vision/papers/p-4.pdf",
+  "figures": [
+    {
+      "figure_id": "fig_0",
+      "figure_number": "Figure 1",
+      "caption": "Fig. 1 Diagram showing the structure of the dataset. Each line represents a connection. The \"Record\" element contains all the other elements.",
+      "page": 1,
+      "bbox": {
+        "x0": 154.1,
+        "y0": 45.1,
+        "x1": 481.4,
+        "y1": 307.8
+      },
+      "image_file": "fig_0_fig1_p1.png"
+    },
+    {
+      "figure_id": "fig_1",
+      "figure_number": "Figure 2",
+      "caption": "Fig. 2 The workflow for constructing the database involves extracting 1831 records from multiple publications and organizing them into a tabular data format. Number of records per alloy classes and properties contained in the resulting database.",
+      "page": 1,
+      "bbox": {
+        "x0": 154.5,
+        "y0": 363.5,
+        "x1": 385.0,
+        "y1": 568.6
+      },
+      "image_file": "fig_1_fig2_p1.png"
+    },
+    {
+      "figure_id": "fig_2",
+      "figure_number": "Figure 3",
+      "caption": "Fig. 3 Boxplot showing the statistics for Cu-Be, Cu-Ti, Cu-Ni-Si and low alloyed Cu-based alloys: (a) alloying elements, (b) temperature and time of the solid solutionning and aging thermal treatments, and cold rolling reduction, (c) properties of interest. The box shows the interquartile range between 25th and 75th percentile. The continuous line is the median value, the dashed line shows the average value, the open circles show the outliners, and the whiskers show the minimum and maximum values.",
+      "page": 2,
+      "bbox": {
+        "x0": 97.3,
+        "y0": 46.0,
+        "x1": 556.3,
+        "y1": 538.8
+      },
+      "image_file": "fig_2_fig3_p2.png"
+    },
+    {
+      "figure_id": "fig_3",
+      "figure_number": "Figure 4",
+      "caption": "Fig. 4 Correlation heatmap showing the strength of the relationship between certain alloying elements, the thermal treatments and the resulting mechanical properties and electrical conductivity element features, for precipitation strengthen alloys (Cu-Be, Cu-Ti and Cu-Ni-Si alloys). It's noteworthy that there's a strong negative correlation between the mechanical properties and the electrical conductivity.",
+      "page": 3,
+      "bbox": {
+        "x0": 154.7,
+        "y0": 45.1,
+        "x1": 481.1,
+        "y1": 339.0
+      },
+      "image_file": "fig_3_fig4_p3.png"
+    },
+    {
+      "figure_id": "fig_4",
+      "figure_number": "Figure 5",
+      "caption": "Fig. 5 Materials property space for hardness vs electrical conductivity of Cu-based alloys. This chart displays data for about 1830 records for Cu-Be, Cu-Ti, Cu-Ni-Si and low alloyed Cu-based alloys from the current database. The colour predominance of the symbols reflect the alloy class, and the colour gradation shows the local density of the point cloud.",
+      "page": 3,
+      "bbox": {
+        "x0": 154.5,
+        "y0": 414.7,
+        "x1": 384.3,
+        "y1": 627.3
+      },
+      "image_file": "fig_4_fig5_p3.png"
+    },
+    {
+      "figure_id": "fig_5",
+      "figure_number": "Figure 6",
+      "caption": "Fig. 6 The material property space of Cu-based alloys is examined in terms of hardness (HV) versus electrical conductivity (%IACS), with a specific focus on the region occupied by Cu-Be alloys. The color of the symbols indicates the influence of cold rolling, with red symbols representing the presence of secondary thermomechanical treatments.",
+      "page": 4,
+      "bbox": {
+        "x0": 154.3,
+        "y0": 45.6,
+        "x1": 383.9,
+        "y1": 235.0
+      },
+      "image_file": "fig_5_fig6_p4.png"
+    },
+    {
+      "figure_id": "fig_6",
+      "figure_number": "Figure 7",
+      "caption": "Fig. 7 Materials property space for hardness (HV) vs electrical conductivity (%IACS) of the Cu-6Ni-1Si-0.5Al0.15Mg-0.1Cr alloy (wt.%) in cold rolled condition. Symbol size and color show the effects of aging time and temperature.",
+      "page": 4,
+      "bbox": {
+        "x0": 154.4,
+        "y0": 312.2,
+        "x1": 384.2,
+        "y1": 495.1
+      },
+      "image_file": "fig_6_fig7_p4.png"
+    }
+  ]
+}

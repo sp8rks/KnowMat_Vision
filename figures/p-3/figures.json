@@ -1,0 +1,83 @@
+{
+  "pdf": "/Users/kartikbudhani/Desktop/KnowMat_Vision/papers/p-3.pdf",
+  "figures": [
+    {
+      "figure_id": "fig_0",
+      "figure_number": "Figure 1",
+      "caption": "Fig. 1 Schematic structure of the database for the fracture, impact toughness and impact energy of the highentropy alloys, which is comprised of 153 data records for the fracture toughness, 14 data records for the impact toughness, and 78 data records on the impact energy, with each record further constituted by an extended summary covering conditions from processing all the way to testing of the fracture toughness, the impact toughness, or the impact energy.",
+      "page": 1,
+      "bbox": {
+        "x0": 154.7,
+        "y0": 45.7,
+        "x1": 384.4,
+        "y1": 278.2
+      },
+      "image_file": "fig_0_fig1_p1.png"
+    },
+    {
+      "figure_id": "fig_1",
+      "figure_number": "Figure 2",
+      "caption": "Fig. 2 Breakdown of the data structure for the fracture toughness. Summary is categorized by color.",
+      "page": 2,
+      "bbox": {
+        "x0": 154.5,
+        "y0": 44.8,
+        "x1": 384.5,
+        "y1": 429.2
+      },
+      "image_file": "fig_1_fig2_p2.png"
+    },
+    {
+      "figure_id": "fig_2",
+      "figure_number": "Figure 3",
+      "caption": "Fig. 3 Breakdown of the data structures for the impact toughness and the impact energy.",
+      "page": 3,
+      "bbox": {
+        "x0": 154.7,
+        "y0": 45.7,
+        "x1": 384.3,
+        "y1": 401.5
+      },
+      "image_file": "fig_2_fig3_p3.png"
+    },
+    {
+      "figure_id": "fig_3",
+      "figure_number": "Figure 4",
+      "caption": "Fig. 4 Graphical compilation of KIC or KQ of high-entropy alloys as a function of their ultimate tensile strengths at different testing temperatures 62-71 . (a) T = 20K, 77 K, or 200 K. (b) T = 298 K. Note that only a fraction of data in the dataset with ultimate tensile strength available is plotted. The arrows in the graph indicate a trend.",
+      "page": 4,
+      "bbox": {
+        "x0": 154.9,
+        "y0": 46.3,
+        "x1": 480.0,
+        "y1": 291.5
+      },
+      "image_file": "fig_3_fig4_p4.png"
+    },
+    {
+      "figure_id": "fig_4",
+      "figure_number": "Figure 5",
+      "caption": "Fig. 5 Graphical compilation of impact toughness of high-entropy alloys as a function of their ultimate tensile strengths at the testing temperatures 63,72 . (a) T = 77 K. (b) T = 298 K. Note that only a fraction of data in the dataset with ultimate tensile strength available is plotted. The arrows in the graph indicate a trend.",
+      "page": 4,
+      "bbox": {
+        "x0": 154.5,
+        "y0": 362.0,
+        "x1": 479.7,
+        "y1": 632.4
+      },
+      "image_file": "fig_4_fig5_p4.png"
+    },
+    {
+      "figure_id": "fig_5",
+      "figure_number": "Figure 6",
+      "caption": "Fig. 6 Graphical compilation of data on impact energy of high-entropy alloys at the testing temperatures of T = 4.2 K, T = 77 K, T = 123 K, T = 173 K, T = 193 K, T = 200 K, T = 213 K, T = 233 K, T = 273 K or T = 298 K 26,73-79 . Note that only a fraction of data in the dataset with the ultimate tensile strength available is plotted. The arrows in the graph indicate a trend 52,80-88 .",
+      "page": 5,
+      "bbox": {
+        "x0": 155.0,
+        "y0": 44.8,
+        "x1": 548.8,
+        "y1": 435.8
+      },
+      "image_file": "fig_5_fig6_p5.png"
+    }
+  ]
+}

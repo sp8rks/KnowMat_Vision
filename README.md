@@ -1,76 +1,77 @@
-# Materials VLM training data generation
+# KnowMat Vision
 
-## Purpose
+Extract figures and captions from scientific PDFs using Docling.
 
-1. Extracts embedded images from PDFs.
-2. Classifies all extracted figure images into `xy_plots`, `schematics`, or `arbitrary`.
-3. Detects perpendicular x-y axis pairs (including multi-panel figures) and extracts x-y plot candidates.
-4. Uses figure-local text/ticks around axes to infer labels, units, and scale (when available).
-5. Digitizes curve series from plot images.
-6. Exports ground-truth x-y points and figure metadata to CSV.
-7. Generates synthetic x-y data and plots.
-8. Applies 10 augmentation modes with 16 variations per plot.
-9. Adds automatic stats labeling on generated plots.
+---
 
-## Run
+## Quick Start
 
-```bash
-cd week2
-python3 -m src.init --pdf-dir "../100 articles" --out outputs
+### 1. Drop your PDFs into `papers/`
+
+```
+papers/
+├── p-1.pdf
+├── p-4.pdf
+└── p-9.pdf
 ```
 
-Optional flags:
+### 2. Run the script
 
 ```bash
-python3 -m src.init --pdf-dir "../100 articles" --out outputs --max-pdfs 20 --max-figures-per-pdf 4 --seed 11
+cd scripts
+bash run_fig.sh
 ```
 
-## Outputs
+That's it. Figures are extracted from every PDF in `papers/` and saved to `figures_highRes/`.
 
-- `outputs/extracted_figures/` : extracted figure images from PDFs
-- `outputs/classified_figures/xy_plots/` : all figure images classified as x-y plots
-- `outputs/classified_figures/schematics/` : all figure images classified as schematics/diagrams
-- `outputs/classified_figures/arbitrary/` : all figure images classified as other/arbitrary
-- `outputs/csv/figure_classification.csv` : per-image classification table
-- `outputs/csv/ground_truth_xy_points.csv` : point-level extracted x-y data
-- `outputs/csv/ground_truth_figures.csv` : figure-level metadata/scalars
-- `outputs/csv/synthetic_xy_points.csv` : synthetic + augmented x-y points
-- `outputs/plots/raw_plots/` : standardized raw plots rendered from extracted x-y data with automatic labeling
-- `outputs/plots/synthetic_base/` : base synthetic plots
-- `outputs/plots/synthetic_augmented/` : 16 variations per plot
-- `outputs/reports/run_report_<timestamp>.json` : run summary
+---
 
-## WebPlotDigitizer Bridge (Manual/Assisted)
+## Directory Flow
 
-Install wrapper once:
-
-```bash
-cd week2
-npm install @insilicall/img2data
+```
+KnowMat_Vision/
+│
+├── papers/                    ← put source PDFs here
+│   ├── p-1.pdf
+│   └── p-9.pdf
+│
+├── figures/                   ← auto-created; one subdir per paper
+│   ├── p-1/
+│   │   ├── figures.json       ← figure number, caption, page, bbox
+│   │   ├── fig_0_fig1_p2.png
+│   │   └── fig_1_fig2_p4.png
+│   └── p-9/
+│       ├── figures.json
+│       └── fig_0_fig1_p3.png
+│
+└── scripts/
+    ├── run_fig.sh             ← entry point
+    └── extract_figure_docling.py
 ```
 
-Prepare a queue of classified x-y figures for WebPlotDigitizer:
+---
 
-```bash
-python3 -m src.wpd_bridge --run-dir outputs --out outputs/webplotdigitizer_queue
-```
+## Configuration
 
-This creates:
-- `outputs/webplotdigitizer_queue/images/`
-- `outputs/webplotdigitizer_queue/manifest.csv`
-- `outputs/webplotdigitizer_queue/README_webplotdigitizer.md`
+Edit the top of [`scripts/run_fig.sh`](scripts/run_fig.sh):
 
-## Augmentation Modes
+| Variable | Default | Description |
+|---|---|---|
+| `PAPERS_DIR` | `../papers` | Folder with source PDFs |
+| `OUT_DIR` | `../figures` | Output root |
+| `DEVICE` | `mps` | `mps` (Mac), `cuda` (NVIDIA), `cpu` |
+| `EXTRA_ARGS` | _(empty)_ | e.g. `--no-ocr`, `--dpi 300` |
 
-Implemented modes:
+---
 
-1. over/underplotting (overplotting, neutral, underplotting)
-2. x-shift
-3. y-shift
-4. curve misassignment
-5. unit error
-6. scale error
-7. axis orientation error
-8. visual density (high, medium, low)
-9. resolution/blurriness (high, medium, low)
-10. complex feature distortion
+## Output
+
+Each paper gets its own folder with:
+- **`figures.json`** — metadata for every extracted figure (number, full caption, page, bounding box, image filename)
+- **`fig_N_figX_pY.png`** — the cropped figure image at 300 DPI
+
+---
+
+## Requirements
+
+See [`setup.md`](setup.md) for full installation instructions (`VLMtrain` conda env with `docling`).

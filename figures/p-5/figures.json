@@ -1,0 +1,44 @@
+{
+  "pdf": "/Users/kartikbudhani/Desktop/KnowMat_Vision/papers/p-5.pdf",
+  "figures": [
+    {
+      "figure_id": "fig_0",
+      "figure_number": "Figure 1",
+      "caption": "Fig. 1 Overview of the methodology used to extract information from available literature and create useful visualization of the aluminum alloy compositional and property spaces. The Aluminum Association is abbreviated as AA.",
+      "page": 1,
+      "bbox": {
+        "x0": 154.5,
+        "y0": 45.2,
+        "x1": 359.4,
+        "y1": 98.1
+      },
+      "image_file": "fig_0_fig1_p1.png"
+    },
+    {
+      "figure_id": "fig_1",
+      "figure_number": "Figure 2",
+      "caption": "Fig. 2 Validation of composition information via dimension reduction. This scatter plot shows a 2D projection of the high-dimensional composition space for aluminum alloys that is achieved via t-distributed stochastic neighbor embedding (t-SNE). The shape of the points in the scatter indicates the source type of the alloy composition as follows: alloys registered with AA are diamond, alloys from Journal Texts are vertical line segments, alloys from Journal Tables are horizontal line segments, alloys from Patents are dots. The color of the points indicates key alloy composition information as follows: in the case of Registered Alloys, color corresponds to the alloy series (1000 is black, 2000 is red, 3000 is orange, 4000 is green, 5000 is purple, 6000 is pink, 7000 is brown, 8000 is yellow; in the case of all other source types, color corresponds to the principal alloying element (Cu is red, Mn is orange, Si is green, Mg is purple, Zn is brown, Cr is blue, Fe is turquoise, Ti is grey). Coloring is consistent based on definitions of series (e.g., 2000 series is primarily alloyed by Cu, thus both are red).",
+      "page": 6,
+      "bbox": {
+        "x0": 154.2,
+        "y0": 421.3,
+        "x1": 359.9,
+        "y1": 590.0
+      },
+      "image_file": "fig_1_fig2_p6.png"
+    },
+    {
+      "figure_id": "fig_2",
+      "figure_number": "Figure 4",
+      "caption": "Fig. 4 Verification of elongation and yield strength values for 5000, 6000, and 7000 series alloys. The shaded regions define bounding ellipses for each series, as provided by educational software tool Ansys Granta Edupack, and serve as a validation for the points extracted from literature.",
+      "page": 7,
+      "bbox": {
+        "x0": 154.5,
+        "y0": 45.6,
+        "x1": 360.6,
+        "y1": 208.2
+      },
+      "image_file": "fig_2_fig4_p7.png"
+    }
+  ]
+}
